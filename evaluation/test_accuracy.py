@@ -92,7 +92,7 @@ for idx, letter in label_map.items():
     total_correct += correct
     total_images  += total
 
-    bar = '█' * int(acc/5) + '░' * (20 - int(acc/5))
+    bar = '#' * int(acc/5) + '-' * (20 - int(acc/5))
     print(f"  {letter}  [{bar}]  {acc:5.1f}%  ({correct}/{total})")
 
 # Summary
@@ -109,4 +109,4 @@ if weak:
     for l, (c, t, a) in sorted(weak, key=lambda x: x[1][2]):
         print(f"    {l}: {a:.1f}%  ({c}/{t})")
 else:
-    print("    None — all letters above 90%! ✓")
+    print("    None - all letters above 90%!")

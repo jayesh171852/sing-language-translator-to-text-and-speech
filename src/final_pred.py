@@ -24,7 +24,10 @@ import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
 from tensorflow.keras.models import load_model
-from hand_detector import HandDetector
+try:
+    from src.hand_detector import HandDetector
+except ImportError:
+    from hand_detector import HandDetector
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 try:

@@ -17,6 +17,10 @@ if __name__ == "__main__":
     print("Launching user interface...\n")
 
     # Launch application
-    from final_pred import Application
+    try:
+        from src.final_pred import Application
+    except ImportError:
+        from final_pred import Application
     app = Application()
     app.root.mainloop()
+

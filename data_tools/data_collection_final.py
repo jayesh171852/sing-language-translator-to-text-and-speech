@@ -17,7 +17,10 @@ for p in [PROJECT_ROOT, os.path.join(PROJECT_ROOT, 'src')]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from hand_detector import HandDetector
+try:
+    from src.hand_detector import HandDetector
+except ImportError:
+    from hand_detector import HandDetector
 
 try:
     import config
