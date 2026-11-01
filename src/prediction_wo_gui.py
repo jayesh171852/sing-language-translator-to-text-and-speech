@@ -4,19 +4,35 @@ Press ESC to quit.
 """
 import math
 import os
+import sys
 import traceback
 
 import cv2
 import numpy as np
+
+# Ensure local src/ and project root are in sys.path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+for p in (BASE_DIR, PROJECT_ROOT):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
 from hand_detector import HandDetector
 from tensorflow.keras.models import load_model
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, 'cnn8grps_rad1_model.h5')
-WHITE_PATH = os.path.join(BASE_DIR, 'white.jpg')
+try:
+    import config
+    MODEL_PATH = config.CNN_MODEL_PATH
+    WHITE_PATH = config.WHITE_PATH
+except Exception:
+    MODELS_DIR = os.path.join(PROJECT_ROOT, 'models')
+    ASSETS_DIR = os.path.join(PROJECT_ROOT, 'assets')
+    MODEL_PATH = os.path.join(MODELS_DIR, 'cnn8grps_rad1_model.h5') if os.path.exists(os.path.join(MODELS_DIR, 'cnn8grps_rad1_model.h5')) else os.path.join(BASE_DIR, 'cnn8grps_rad1_model.h5')
+    WHITE_PATH = os.path.join(ASSETS_DIR, 'white.jpg') if os.path.exists(os.path.join(ASSETS_DIR, 'white.jpg')) else os.path.join(BASE_DIR, 'white.jpg')
 
 # Generate white image if missing
 if not os.path.exists(WHITE_PATH):
+    os.makedirs(os.path.dirname(WHITE_PATH), exist_ok=True)
     white_img = np.ones((400, 400, 3), np.uint8) * 255
     cv2.imwrite(WHITE_PATH, white_img)
 

@@ -35,13 +35,24 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 
-BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-# Raw real-photo dataset — diverse backgrounds, multiple people
-RAW_DIR     = os.path.join(BASE_DIR, 'archive (1)', 'asl_alphabet_train', 'asl_alphabet_train')
-MODEL_OUT   = os.path.join(BASE_DIR, 'landmark_model.keras')
-LABEL_MAP_F = os.path.join(BASE_DIR, 'label_map.json')
-PLOT_OUT    = os.path.join(BASE_DIR, 'landmark_training.png')
-LM_TASK     = os.path.join(BASE_DIR, 'hand_landmarker.task')
+BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+try:
+    import config
+    RAW_DIR     = config.RAW_DATA_DIR
+    MODEL_OUT   = config.LANDMARK_MODEL_PATH
+    LABEL_MAP_F = config.LABEL_MAP_PATH
+    PLOT_OUT    = os.path.join(config.OUTPUTS_DIR, 'landmark_training.png')
+    LM_TASK     = config.LM_TASK_PATH
+except Exception:
+    RAW_DIR     = os.path.join(PROJECT_ROOT, 'data', 'raw', 'asl_alphabet_train', 'asl_alphabet_train')
+    MODEL_OUT   = os.path.join(PROJECT_ROOT, 'models', 'landmark_model.keras')
+    LABEL_MAP_F = os.path.join(PROJECT_ROOT, 'models', 'label_map.json')
+    PLOT_OUT    = os.path.join(PROJECT_ROOT, 'outputs', 'landmark_training.png')
+    LM_TASK     = os.path.join(PROJECT_ROOT, 'models', 'hand_landmarker.task')
 
 VALID_LETTERS = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 NUM_FEATURES  = 63   # 21 landmarks × (x, y, z)

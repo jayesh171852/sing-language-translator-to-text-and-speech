@@ -10,13 +10,22 @@ import cv2
 import os
 import traceback
 import numpy as np
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+import sys
+for p in [PROJECT_ROOT, os.path.join(PROJECT_ROOT, 'src')]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
 from hand_detector import HandDetector
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WHITE_PATH = os.path.join(BASE_DIR, 'white.jpg')
-
-# Output dataset directory — change this to wherever you want to save data
-DATASET_DIR = os.path.join(BASE_DIR, 'AtoZ_3.1')
+try:
+    import config
+    WHITE_PATH = config.WHITE_PATH
+    DATASET_DIR = config.PROCESSED_DATA_DIR
+except Exception:
+    WHITE_PATH = os.path.join(PROJECT_ROOT, 'assets', 'white.jpg')
+    DATASET_DIR = os.path.join(PROJECT_ROOT, 'data', 'processed')
 
 # Generate white image if missing
 if not os.path.exists(WHITE_PATH):

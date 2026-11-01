@@ -15,11 +15,23 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH  = os.path.join(BASE_DIR, 'cnn8grps_rad1_model.h5')
-BACKUP_PATH = os.path.join(BASE_DIR, 'cnn8grps_rad1_model_backup.h5')
-DATA_DIR    = os.path.join(BASE_DIR, 'AtoZ_3.1')
-PLOT_PATH   = os.path.join(BASE_DIR, 'training_results.png')
+BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+import sys
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+try:
+    import config
+    MODEL_PATH  = config.CNN_MODEL_PATH
+    BACKUP_PATH = config.CNN_BACKUP_PATH
+    DATA_DIR    = config.PROCESSED_DATA_DIR
+    PLOT_PATH   = os.path.join(config.OUTPUTS_DIR, 'training_results.png')
+except Exception:
+    MODEL_PATH  = os.path.join(PROJECT_ROOT, 'models', 'cnn8grps_rad1_model.h5')
+    BACKUP_PATH = os.path.join(PROJECT_ROOT, 'models', 'cnn8grps_rad1_model_backup.h5')
+    DATA_DIR    = os.path.join(PROJECT_ROOT, 'data', 'processed')
+    PLOT_PATH   = os.path.join(PROJECT_ROOT, 'outputs', 'training_results.png')
 
 IMG_SIZE   = 400
 BATCH_SIZE = 64     # larger batch = much faster per epoch

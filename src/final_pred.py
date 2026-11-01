@@ -11,6 +11,15 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+import sys
+
+# Ensure local src/ and project root are in sys.path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+for p in (BASE_DIR, PROJECT_ROOT):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
 import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
@@ -18,19 +27,29 @@ from tensorflow.keras.models import load_model
 from hand_detector import HandDetector
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH     = os.path.join(BASE_DIR, 'landmark_model.keras')
-LABEL_MAP_PATH = os.path.join(BASE_DIR, 'label_map.json')
-LM_TASK        = os.path.join(BASE_DIR, 'hand_landmarker.task')
-WHITE_PATH     = os.path.join(BASE_DIR, 'white.jpg')
+try:
+    import config
+    MODEL_PATH     = config.LANDMARK_MODEL_PATH
+    LABEL_MAP_PATH = config.LABEL_MAP_PATH
+    LM_TASK        = config.LM_TASK_PATH
+    WHITE_PATH     = config.WHITE_PATH
+except Exception:
+    MODELS_DIR     = os.path.join(PROJECT_ROOT, 'models')
+    ASSETS_DIR     = os.path.join(PROJECT_ROOT, 'assets')
+    MODEL_PATH     = os.path.join(MODELS_DIR, 'landmark_model.keras') if os.path.exists(os.path.join(MODELS_DIR, 'landmark_model.keras')) else os.path.join(BASE_DIR, 'landmark_model.keras')
+    LABEL_MAP_PATH = os.path.join(MODELS_DIR, 'label_map.json') if os.path.exists(os.path.join(MODELS_DIR, 'label_map.json')) else os.path.join(BASE_DIR, 'label_map.json')
+    LM_TASK        = os.path.join(MODELS_DIR, 'hand_landmarker.task') if os.path.exists(os.path.join(MODELS_DIR, 'hand_landmarker.task')) else os.path.join(BASE_DIR, 'hand_landmarker.task')
+    WHITE_PATH     = os.path.join(ASSETS_DIR, 'white.jpg') if os.path.exists(os.path.join(ASSETS_DIR, 'white.jpg')) else os.path.join(BASE_DIR, 'white.jpg')
 
 USE_NEW_MODEL = os.path.exists(MODEL_PATH) and os.path.exists(LABEL_MAP_PATH)
 if not USE_NEW_MODEL:
-    MODEL_PATH = os.path.join(BASE_DIR, 'cnn8grps_rad1_model.h5')
-    print("WARNING: landmark_model.keras not found — using old CNN model.")
-    print("Run  python train_landmark.py  for better accuracy.")
+    legacy_path = os.path.join(PROJECT_ROOT, 'models', 'cnn8grps_rad1_model.h5')
+    MODEL_PATH = legacy_path if os.path.exists(legacy_path) else os.path.join(BASE_DIR, 'cnn8grps_rad1_model.h5')
+    print("WARNING: landmark_model.keras not found - using old CNN model.")
+    print("Run  python training/train_landmark.py  for better accuracy.")
 
 if not os.path.exists(WHITE_PATH):
+    os.makedirs(os.path.dirname(WHITE_PATH), exist_ok=True)
     cv2.imwrite(WHITE_PATH, np.ones((400, 400, 3), np.uint8) * 255)
 
 # ── Optional spell suggestions ────────────────────────────────────────────────
@@ -186,9 +205,14 @@ class Application:
         self.suggestions = ["", "", "", ""]
 
         self._build_ui()
-        mode = "landmark MLP ✓" if USE_NEW_MODEL else "legacy CNN (run train_landmark.py)"
-        print(f"Model loaded [{mode}] — starting.")
-        self.video_loop()
+        # Use ASCII-friendly status messages to avoid UnicodeEncodeError on Windows terminals
+        mode = "landmark MLP" if USE_NEW_MODEL else "legacy CNN (run train_landmark.py)"
+        print(f"Model loaded [{mode}] - starting.")
+        # Bring the Tkinter window to the foreground (Windows)
+        self.root.after(100, lambda: self.root.attributes("-topmost", True))
+        self.root.after(200, lambda: self.root.attributes("-topmost", False))
+        # Start the video loop after the window is shown
+        self.root.after(300, self.video_loop)
 
     def _build_ui(self):
         self.root = tk.Tk()

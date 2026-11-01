@@ -10,10 +10,21 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from tensorflow.keras.models import load_model
 
-BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
-HIST_PATH  = os.path.join(BASE_DIR, 'training_history.json')
-MODEL_PATH = os.path.join(BASE_DIR, 'landmark_model.keras')
-OUT_PATH   = os.path.join(BASE_DIR, 'landmark_training_detailed.png')
+BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+import sys
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+try:
+    import config
+    HIST_PATH  = os.path.join(config.OUTPUTS_DIR, 'training_history.json')
+    MODEL_PATH = config.LANDMARK_MODEL_PATH
+    OUT_PATH   = os.path.join(config.OUTPUTS_DIR, 'landmark_training_detailed.png')
+except Exception:
+    HIST_PATH  = os.path.join(PROJECT_ROOT, 'outputs', 'training_history.json')
+    MODEL_PATH = os.path.join(PROJECT_ROOT, 'models', 'landmark_model.keras')
+    OUT_PATH   = os.path.join(PROJECT_ROOT, 'outputs', 'landmark_training_detailed.png')
 
 # ── Load history ──────────────────────────────────────────────────────────────
 if not os.path.exists(HIST_PATH):

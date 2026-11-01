@@ -19,9 +19,19 @@ import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
 
-BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH  = os.path.join(BASE_DIR, 'hand_landmarker.task')
-WHITE_PATH  = os.path.join(BASE_DIR, 'white.jpg')
+BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+import sys
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+try:
+    import config
+    MODEL_PATH = config.LM_TASK_PATH
+    WHITE_PATH = config.WHITE_PATH
+except Exception:
+    MODEL_PATH = os.path.join(PROJECT_ROOT, 'models', 'hand_landmarker.task')
+    WHITE_PATH = os.path.join(PROJECT_ROOT, 'assets', 'white.jpg')
 CANVAS_SIZE = 400
 
 # Generate white canvas if missing
@@ -171,7 +181,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input',  required=True,
                         help='Path to dataset folder with A-Z subfolders')
-    parser.add_argument('--output', default='AtoZ_3.1',
+    parser.add_argument('--output', default='data/processed',
                         help='Output folder (default: AtoZ_3.1)')
     args = parser.parse_args()
     convert_dataset(args.input, args.output)

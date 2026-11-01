@@ -3,6 +3,7 @@ hand_detector.py — HandDetector using mediapipe Tasks API (0.10.30+).
 Mimics the cvzone HandDetector interface used in this project.
 """
 import os
+import sys
 import cv2
 import numpy as np
 import mediapipe as mp
@@ -10,7 +11,14 @@ from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, 'hand_landmarker.task')
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+
+try:
+    import config
+    MODEL_PATH = config.LM_TASK_PATH
+except Exception:
+    alt_model = os.path.join(PROJECT_ROOT, 'models', 'hand_landmarker.task')
+    MODEL_PATH = alt_model if os.path.exists(alt_model) else os.path.join(BASE_DIR, 'hand_landmarker.task')
 
 
 class HandDetector:
